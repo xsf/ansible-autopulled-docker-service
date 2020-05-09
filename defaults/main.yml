@@ -1,0 +1,49 @@
+# The directory where apply scripts and potential other data will be put.
+# The directory will be created by the ansible role as needed and will be
+# accessible for root only.
+xsf_autopulled_docker_service_datadir: "/var/lib/xsf-autopulled-docker-service"
+
+# The AccuracySec value for systemd timers responsible for updating the
+# images. See `man systemd.timer` for details.
+xsf_autopulled_docker_service_check_accuracy: 60
+
+# Definition of containers.
+#xsf_autopulled_docker_service_containers:
+#- name: <string>
+#  image: <string>
+#  portmap:
+#  [ - host: <portnumber>
+#      guest: <portnumber>
+#      bind: <ip> ]
+#  check_on: <string>
+#
+# The `name` must be a valid file name. It must not contain slashes, and
+# whitespace will yield pain, too. Stick to ASCII if possible.
+#
+# The `image` must be a valid docker image ref to be pulled. Periodically,
+# a check will run which checks for a newer version under the same tag. If a
+# new version is found, the container is stopped and replaced.
+#
+# The `portmap` must be a (possibly empty) array of port map entries. The
+# `host` of each entry is the port number on the host side of the port
+# exposure. `guest` is the port number inside the container. `bind` is
+# optional (defaulting to 127.0.0.1) and defines the IP address on the host
+# side to which the port will bind.
+#
+# `check_on` must be a valid value for a systemd timer `OnCalendar` property.
+# This defines the rhythm in which a check for updates is run.
+#
+# Example:
+#
+#xsf_autopulled_docker_service_containers:
+#- name: xmpp.org_extensions
+#  image: xmppxsf/xeps:latest
+#  portmap:
+#  - host: 7002
+#    guest: 80
+#    bind: '127.0.0.1'
+#  check_on: '*-*-* *:0/5:00'
+#
+# This runs the xmppxsf/xeps:latest in a container called xmpp.org_extensions
+# and exposes port 80 of the container on 127.0.0.1:7002. The image is updated
+# every five minutes.

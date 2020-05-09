@@ -1,0 +1,81 @@
+---
+- name: create data directory
+  file:
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go-rwx
+    path: "{{ xsf_autopulled_docker_service_datadir }}"
+  tags:
+  - xsf-autopulled-docker-service
+
+- name: create container directories
+  file:
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go-rwx
+    path: "{{ xsf_autopulled_docker_service_datadir }}/{{ item.name }}"
+  loop: "{{ xsf_autopulled_docker_service_containers }}"
+  tags:
+  - xsf-autopulled-docker-service
+
+- name: create apply scripts
+  template:
+    src: apply.sh
+    dest: "{{ xsf_autopulled_docker_service_datadir }}/{{ item.name }}/apply.sh"
+    owner: root
+    group: root
+    mode: u=rwx,go-rwx
+  loop: "{{ xsf_autopulled_docker_service_containers }}"
+  tags:
+  - xsf-autopulled-docker-service
+
+- name: create timer units
+  template:
+    src: xsf-autopulled-docker-service-check.timer
+    dest: "/etc/systemd/system/xsf-autopulled-docker-service-check-{{ item.name }}.timer"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  loop: "{{ xsf_autopulled_docker_service_containers }}"
+  register: systemd_timers
+  tags:
+  - xsf-autopulled-docker-service
+
+- name: create service unit
+  template:
+    src: xsf-autopulled-docker-service@.service
+    dest: /etc/systemd/system/
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  register: systemd_service
+  tags:
+  - xsf-autopulled-docker-service
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+  when: "systemd_service is changed or systemd_timers is changed"
+  tags:
+  - xsf-autopulled-docker-service
+
+- name: start and enable all containers
+  service:
+    name: "xsf-autopulled-docker-service@{{ item.name }}.service"
+    state: started
+    enabled: yes
+  loop: "{{ xsf_autopulled_docker_service_containers }}"
+  tags:
+  - xsf-autopulled-docker-service
+
+- name: start and enable all timers
+  service:
+    name: "xsf-autopulled-docker-service-check-{{ item.name }}.timer"
+    state: started
+    enabled: yes
+  loop: "{{ xsf_autopulled_docker_service_containers }}"
+  tags:
+  - xsf-autopulled-docker-service
+

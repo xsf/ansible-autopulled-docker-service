@@ -1,0 +1,7 @@
+[Unit]
+Description=Check for update for {{ item.name }} docker service
+
+[Timer]
+OnCalendar={{ item.check_on }}
+AccuracySec={{ xsf_autopulled_docker_service_check_accuracy }}
+Unit=xsf-autopulled-docker-service@{{ item.name }}.service

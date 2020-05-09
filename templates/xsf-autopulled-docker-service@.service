@@ -1,0 +1,7 @@
+[Unit]
+Description=XSF: Apply autopulled Docker service: %i
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart={{ xsf_autopulled_docker_service_datadir }}/%i/apply.sh
